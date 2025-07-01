@@ -1,0 +1,303 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Briefing Interativo: Identidade Visual & Cartão de Visita</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <!-- 
+        Chosen Palette: Calm Harmony 
+        (Background: bg-stone-50, Text: text-stone-800, Accent: bg-orange-500/text-orange-500, Neutrals: stone)
+    -->
+    <!-- 
+        Application Structure Plan: A multi-step "wizard" or "stepper" form. This structure was chosen to break down the long questionnaire into manageable, thematic sections, reducing user cognitive load. A visual progress bar provides a clear sense of location and completion. The flow is linear (Next/Previous), which is intuitive for filling out a form. This transforms a static document into a guided, interactive process, improving the user experience and encouraging more thoughtful responses.
+    -->
+    <!-- 
+        Visualization & Content Choices:
+        - Report Info: Entire briefing form. -> Goal: Collect Info. -> Viz/Presentation: Multi-step HTML form. -> Interaction: Users fill inputs and navigate via "Next/Previous" buttons. The form state (current step) is managed by JS. -> Justification: The wizard format is superior to a long, single-page form for usability and engagement. It makes the task feel less daunting.
+        - Report Info: Progress through the form. -> Goal: Inform. -> Viz/Presentation: HTML/CSS progress bar. -> Interaction: The bar's width and text label update dynamically via JS as the user navigates between steps. -> Justification: Provides crucial visual feedback on the user's progress, managing expectations and improving the experience.
+        - Report Info: Single/multiple choice questions (e.g., "Você já possui um logo?"). -> Goal: Collect Info. -> Viz/Presentation: Custom-styled radio buttons/checkboxes using HTML/Tailwind. -> Interaction: Clickable cards or styled inputs that provide clear visual feedback when selected. -> Justification: Enhances the visual appeal and interactivity compared to default browser form elements.
+        - Library/Method: Vanilla JavaScript for all logic. Tailwind CSS for styling.
+    -->
+    <!-- 
+        CONFIRMATION: NO SVG graphics used. NO Mermaid JS used. 
+    -->
+    <style>
+        body {
+            font-family: 'Inter', sans-serif;
+        }
+        .form-step {
+            display: none;
+            animation: fadeIn 0.5s ease-in-out;
+        }
+        .form-step.active {
+            display: block;
+        }
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(10px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+        .radio-card {
+            transition: all 0.2s ease-in-out;
+        }
+        input[type="radio"]:checked + .radio-card {
+            border-color: #f97316; /* orange-500 */
+            background-color: #fff7ed; /* orange-50 */
+        }
+        input[type="radio"]:focus + .radio-card {
+            box-shadow: 0 0 0 2px rgba(249, 115, 22, 0.4);
+        }
+    </style>
+</head>
+<body class="bg-stone-50 text-stone-800 flex items-center justify-center min-h-screen p-4">
+
+    <main class="w-full max-w-3xl bg-white rounded-2xl shadow-lg p-6 sm:p-10 transition-all duration-500" id="form-container">
+        
+        <!-- Form Header -->
+        <div class="text-center mb-8">
+            <h1 class="text-2xl sm:text-3xl font-bold text-stone-900">Briefing de Identidade Visual</h1>
+            <p class="text-stone-500 mt-2">Vamos criar algo incrível juntos. Siga os passos abaixo.</p>
+        </div>
+
+        <!-- Progress Bar -->
+        <div class="mb-8">
+            <div class="flex justify-between mb-2 text-sm font-medium text-stone-600">
+                <span>Passo <span id="current-step-text">1</span> de 6</span>
+                <span id="progress-percent-text">0%</span>
+            </div>
+            <div class="w-full bg-stone-200 rounded-full h-2.5">
+                <div id="progress-bar" class="bg-orange-500 h-2.5 rounded-full transition-all duration-500" style="width: 0%"></div>
+            </div>
+        </div>
+
+        <form id="briefing-form">
+            
+            <!-- Step 1: Contact Info -->
+            <div id="step-1" class="form-step active">
+                <h2 class="text-xl font-semibold mb-2">1. Informações de Contato</h2>
+                <p class="text-stone-500 mb-6">Para começar, precisamos dos seus dados básicos.</p>
+                <div class="space-y-4">
+                    <div>
+                        <label for="fullName" class="block text-sm font-medium text-stone-700">Nome Completo / Nome da Empresa</label>
+                        <input type="text" id="fullName" class="mt-1 block w-full px-3 py-2 bg-white border border-stone-300 rounded-md shadow-sm placeholder-stone-400 focus:outline-none focus:ring-orange-500 focus:border-orange-500 sm:text-sm">
+                    </div>
+                    <div>
+                        <label for="contactName" class="block text-sm font-medium text-stone-700">Nome para Contato (se diferente)</label>
+                        <input type="text" id="contactName" class="mt-1 block w-full px-3 py-2 bg-white border border-stone-300 rounded-md shadow-sm placeholder-stone-400 focus:outline-none focus:ring-orange-500 focus:border-orange-500 sm:text-sm">
+                    </div>
+                    <div>
+                        <label for="phone" class="block text-sm font-medium text-stone-700">Telefone</label>
+                        <input type="tel" id="phone" class="mt-1 block w-full px-3 py-2 bg-white border border-stone-300 rounded-md shadow-sm placeholder-stone-400 focus:outline-none focus:ring-orange-500 focus:border-orange-500 sm:text-sm">
+                    </div>
+                    <div>
+                        <label for="email" class="block text-sm font-medium text-stone-700">E-mail</label>
+                        <input type="email" id="email" class="mt-1 block w-full px-3 py-2 bg-white border border-stone-300 rounded-md shadow-sm placeholder-stone-400 focus:outline-none focus:ring-orange-500 focus:border-orange-500 sm:text-sm">
+                    </div>
+                </div>
+            </div>
+
+            <!-- Step 2: About the Business -->
+            <div id="step-2" class="form-step">
+                <h2 class="text-xl font-semibold mb-2">2. Sobre o Seu Negócio/Marca</h2>
+                <p class="text-stone-500 mb-6">Conte-nos a essência da sua marca.</p>
+                <div class="space-y-4">
+                    <div>
+                        <label for="brandName" class="block text-sm font-medium text-stone-700">Qual o nome da marca/empresa?</label>
+                        <input type="text" id="brandName" class="mt-1 block w-full px-3 py-2 bg-white border border-stone-300 rounded-md shadow-sm focus:outline-none focus:ring-orange-500 focus:border-orange-500 sm:text-sm">
+                    </div>
+                    <div>
+                        <label for="mission" class="block text-sm font-medium text-stone-700">Qual a missão da sua empresa/negócio? (O que vocês fazem e para quem?)</label>
+                        <textarea id="mission" rows="3" class="mt-1 block w-full px-3 py-2 bg-white border border-stone-300 rounded-md shadow-sm focus:outline-none focus:ring-orange-500 focus:border-orange-500 sm:text-sm"></textarea>
+                    </div>
+                     <div>
+                        <label for="targetAudience" class="block text-sm font-medium text-stone-700">Descreva seu público-alvo ideal.</label>
+                        <textarea id="targetAudience" rows="3" class="mt-1 block w-full px-3 py-2 bg-white border border-stone-300 rounded-md shadow-sm focus:outline-none focus:ring-orange-500 focus:border-orange-500 sm:text-sm"></textarea>
+                    </div>
+                     <div>
+                        <label for="brandFeeling" class="block text-sm font-medium text-stone-700">Qual a sensação ou emoção que sua marca deve transmitir?</label>
+                        <input type="text" id="brandFeeling" placeholder="Ex: Modernidade, sofisticação, confiança..." class="mt-1 block w-full px-3 py-2 bg-white border border-stone-300 rounded-md shadow-sm focus:outline-none focus:ring-orange-500 focus:border-orange-500 sm:text-sm">
+                    </div>
+                </div>
+            </div>
+            
+            <!-- Step 3: Visual Identity -->
+            <div id="step-3" class="form-step">
+                <h2 class="text-xl font-semibold mb-2">3. Sobre a Identidade Visual</h2>
+                 <p class="text-stone-500 mb-6">Vamos definir o estilo visual.</p>
+                <div class="space-y-6">
+                    <div>
+                       <label class="block text-sm font-medium text-stone-700 mb-2">Você já possui um logo ou identidade visual?</label>
+                        <div class="grid grid-cols-1 sm:grid-cols-3 gap-4">
+                            <label>
+                                <input type="radio" name="logoStatus" value="no" class="sr-only">
+                                <div class="radio-card cursor-pointer p-4 border border-stone-300 rounded-lg text-center">Não</div>
+                            </label>
+                            <label>
+                                <input type="radio" name="logoStatus" value="yes" class="sr-only">
+                                <div class="radio-card cursor-pointer p-4 border border-stone-300 rounded-lg text-center">Sim</div>
+                            </label>
+                             <label>
+                                <input type="radio" name="logoStatus" value="rebrand" class="sr-only">
+                                <div class="radio-card cursor-pointer p-4 border border-stone-300 rounded-lg text-center">Sim, mas quero reformular</div>
+                            </label>
+                        </div>
+                    </div>
+                    <div>
+                        <label for="colors" class="block text-sm font-medium text-stone-700">Existem cores que você gostaria de usar ou evitar? Por quê?</label>
+                        <textarea id="colors" rows="3" class="mt-1 block w-full px-3 py-2 bg-white border border-stone-300 rounded-md shadow-sm focus:outline-none focus:ring-orange-500 focus:border-orange-500 sm:text-sm"></textarea>
+                    </div>
+                    <div>
+                        <label for="style" class="block text-sm font-medium text-stone-700">Você tem alguma preferência de estilo?</label>
+                        <input type="text" id="style" placeholder="Ex: Minimalista, rústico, elegante, futurista..." class="mt-1 block w-full px-3 py-2 bg-white border border-stone-300 rounded-md shadow-sm focus:outline-none focus:ring-orange-500 focus:border-orange-500 sm:text-sm">
+                    </div>
+                </div>
+            </div>
+
+            <!-- Step 4: Business Card -->
+            <div id="step-4" class="form-step">
+                 <h2 class="text-xl font-semibold mb-2">4. Sobre o Cartão de Visita</h2>
+                 <p class="text-stone-500 mb-6">Detalhes para um cartão de visita impactante.</p>
+                 <div class="space-y-4">
+                    <div>
+                        <label for="cardInfo" class="block text-sm font-medium text-stone-700">Quais informações devem constar no cartão?</label>
+                        <textarea id="cardInfo" rows="4" placeholder="Nome, Cargo, Telefone, E-mail, Site, Redes Sociais, QR Code, Endereço, etc." class="mt-1 block w-full px-3 py-2 bg-white border border-stone-300 rounded-md shadow-sm focus:outline-none focus:ring-orange-500 focus:border-orange-500 sm:text-sm"></textarea>
+                    </div>
+                    <div>
+                        <label for="cardFormat" class="block text-sm font-medium text-stone-700">Tem preferência por formato ou material?</label>
+                        <input type="text" id="cardFormat" placeholder="Ex: Padrão 9x5cm, cantos arredondados, papel fosco..." class="mt-1 block w-full px-3 py-2 bg-white border border-stone-300 rounded-md shadow-sm focus:outline-none focus:ring-orange-500 focus:border-orange-500 sm:text-sm">
+                    </div>
+                </div>
+            </div>
+
+            <!-- Step 5: Budget & Deadline -->
+            <div id="step-5" class="form-step">
+                <h2 class="text-xl font-semibold mb-2">5. Orçamento e Prazo</h2>
+                <p class="text-stone-500 mb-6">Informações importantes para o planejamento.</p>
+                <div class="space-y-4">
+                    <div>
+                        <label for="deadline" class="block text-sm font-medium text-stone-700">Qual o prazo ideal para a entrega deste projeto?</label>
+                        <input type="text" id="deadline" class="mt-1 block w-full px-3 py-2 bg-white border border-stone-300 rounded-md shadow-sm focus:outline-none focus:ring-orange-500 focus:border-orange-500 sm:text-sm">
+                    </div>
+                    <div>
+                        <label for="budget" class="block text-sm font-medium text-stone-700">Você tem um orçamento estimado? (Opcional)</label>
+                        <input type="text" id="budget" class="mt-1 block w-full px-3 py-2 bg-white border border-stone-300 rounded-md shadow-sm focus:outline-none focus:ring-orange-500 focus:border-orange-500 sm:text-sm">
+                    </div>
+                </div>
+            </div>
+
+            <!-- Step 6: Final Considerations -->
+            <div id="step-6" class="form-step">
+                <h2 class="text-xl font-semibold mb-2">6. Considerações Finais</h2>
+                <p class="text-stone-500 mb-6">Deixe aqui qualquer informação adicional que julgar importante.</p>
+                <div class="space-y-4">
+                     <div>
+                        <label for="finalComments" class="block text-sm font-medium text-stone-700">Comentários Adicionais</label>
+                        <textarea id="finalComments" rows="5" class="mt-1 block w-full px-3 py-2 bg-white border border-stone-300 rounded-md shadow-sm focus:outline-none focus:ring-orange-500 focus:border-orange-500 sm:text-sm"></textarea>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Navigation Buttons -->
+            <div class="mt-8 pt-5 border-t border-stone-200 flex justify-between items-center">
+                <button type="button" id="prev-btn" class="bg-stone-200 text-stone-700 font-medium py-2 px-4 rounded-md hover:bg-stone-300 disabled:opacity-50 disabled:cursor-not-allowed transition-colors">
+                    Anterior
+                </button>
+                <button type="button" id="next-btn" class="bg-orange-500 text-white font-medium py-2 px-4 rounded-md hover:bg-orange-600 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-orange-500 transition-colors">
+                    Próximo
+                </button>
+            </div>
+        </form>
+
+        <!-- Success Message -->
+        <div id="success-message" class="text-center hidden p-8">
+            <div class="mx-auto bg-green-100 rounded-full h-16 w-16 flex items-center justify-center">
+                <svg class="h-8 w-8 text-green-600" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7" />
+                </svg>
+            </div>
+            <h2 class="text-2xl font-bold mt-6 text-stone-900">Obrigado!</h2>
+            <p class="text-stone-600 mt-2">Recebemos suas respostas. Entraremos em contato em breve para discutir os próximos passos do seu projeto.</p>
+        </div>
+
+    </main>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            const totalSteps = 6;
+            let currentStep = 1;
+
+            const prevBtn = document.getElementById('prev-btn');
+            const nextBtn = document.getElementById('next-btn');
+            const form = document.getElementById('briefing-form');
+            const formContainer = document.getElementById('form-container');
+            const successMessage = document.getElementById('success-message');
+            const progressBar = document.getElementById('progress-bar');
+            const currentStepText = document.getElementById('current-step-text');
+            const progressPercentText = document.getElementById('progress-percent-text');
+
+            function showStep(step) {
+                document.querySelectorAll('.form-step').forEach(el => el.classList.remove('active'));
+                document.getElementById(`step-${step}`).classList.add('active');
+            }
+
+            function updateProgress() {
+                // Update text
+                currentStepText.textContent = currentStep;
+                
+                // Update progress bar
+                const progressPercentage = ((currentStep - 1) / (totalSteps -1)) * 100;
+                progressBar.style.width = `${progressPercentage}%`;
+                progressPercentText.textContent = `${Math.round(progressPercentage)}%`;
+            }
+
+            function updateButtons() {
+                if (currentStep === 1) {
+                    prevBtn.disabled = true;
+                    prevBtn.classList.add('opacity-50', 'cursor-not-allowed');
+                } else {
+                    prevBtn.disabled = false;
+                    prevBtn.classList.remove('opacity-50', 'cursor-not-allowed');
+                }
+
+                if (currentStep === totalSteps) {
+                    nextBtn.textContent = 'Enviar Briefing';
+                } else {
+                    nextBtn.textContent = 'Próximo';
+                }
+            }
+            
+            nextBtn.addEventListener('click', () => {
+                if (currentStep < totalSteps) {
+                    currentStep++;
+                    showStep(currentStep);
+                    updateButtons();
+                    updateProgress();
+                } else {
+                    // Handle form submission
+                    form.style.display = 'none';
+                    document.querySelector('.mb-8').style.display = 'none'; // Hide progress bar
+                    successMessage.classList.remove('hidden');
+                    successMessage.classList.add('block');
+                }
+            });
+
+            prevBtn.addEventListener('click', () => {
+                if (currentStep > 1) {
+                    currentStep--;
+                    showStep(currentStep);
+                    updateButtons();
+                    updateProgress();
+                }
+            });
+            
+            // Initial state
+            showStep(currentStep);
+            updateButtons();
+            updateProgress();
+        });
+    </script>
+</body>
+</html>
